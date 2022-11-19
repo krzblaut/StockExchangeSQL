@@ -56,6 +56,16 @@ class OrderFlow:
                 print('Stock quantity must be integer or float.')
         return order_quantity
 
+    @staticmethod
+    def input_order_id():
+        while True:
+            try:
+                order_id = int(input("input order id you want to remove: "))
+                break
+            except ValueError:
+                print('Order id must be an integer.')
+        return order_id
+
     def add_order(self):
         """method let's it user input order details and saves them in database"""
         order_type = self.input_type()
@@ -70,7 +80,7 @@ class OrderFlow:
 
     def remove_order(self):
         """sets value in active column to 0 for a given order_id"""
-        order_id = int(input("input order id you want to remove: "))
+        order_id = self.input_order_id()
         record = self.cursor.execute(f"SELECT * FROM Orders WHERE order_id = {order_id}")
         if record.fetchone():
             with self.con:
