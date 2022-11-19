@@ -68,14 +68,16 @@ class OrderFlow:
             order_id = self.cursor.execute("SELECT MAX(order_id) FROM Orders;")
             print(f"Order saved. Your order's id: {order_id.fetchone()[0]}")
 
-    def remove_order(self, order_id):
+    def remove_order(self):
         """sets value in active column to 0 for a given order_id"""
-        with self.con:
-            try:
+        order_id = int(input("input order id you want to remove: "))
+        record = self.cursor.execute(f"SELECT * FROM Orders WHERE order_id = {order_id}")
+        if record.fetchone():
+            with self.con:
                 self.cursor.execute(f"UPDATE Orders SET active = 0 where order_id = {order_id};")
                 print(f"Order with id {order_id} was removed.")
-            except TypeError:
-                print("No such order.")
+        else:
+            print("No order with such id in order book.")
 
     def print_all_orders(self):
         """prints all orders on the book"""
@@ -98,11 +100,11 @@ class OrderFlow:
             print()
             print(" "*10, "Best orders on the book")
             print(pd.read_sql_query("SELECT order_id, price, price*quantity AS value, order_type "
-                                    "FROM Orders WHERE order_type = 'buy' AND price IN "
+                                    "FROM Orders WHERE order_type = 'buy' AND active = 1 AND price IN "
                                     "(SELECT MAX(price) FROM Orders WHERE order_type = 'buy' AND active = 1) "
                                     "UNION "
                                     "SELECT order_id, price, price*quantity AS value, order_type "
-                                    "FROM Orders WHERE order_type = 'sell' AND price IN "
+                                    "FROM Orders WHERE order_type = 'sell' AND active = 1 AND price IN "
                                     "(SELECT MIN(price) FROM Orders WHERE order_type = 'sell' AND active = 1) "
                                     "ORDER BY order_type DESC;", self.con))
             print()
@@ -116,7 +118,7 @@ if __name__ == '__main__':
         if operation == 'add':
             of.add_order()
         elif operation == 'remove':
-            of.remove_order(str(input("input order id you want to remove: ")))
+            of.remove_order()
         elif operation == 'show orders':
             of.print_all_orders()
         elif operation == 'quit':
