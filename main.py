@@ -1,6 +1,17 @@
 import sqlite3
 import pandas as pd
 
+"""
+OrderBook.db schema:
+
+CREATE TABLE Orders(
+order_id INTEGER PRIMARY KEY,
+price REAL NOT NULL,
+quantity REAL NOT NULL,
+order_type TEXT NOT NULL,
+active INTEGER DEFAULT 1 NOT NULL);
+"""
+
 
 class OrderFlow:
 
