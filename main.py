@@ -97,7 +97,9 @@ class OrderFlow:
         if record.fetchall():
             print()
             print(" " * 10, "All orders on the book")
-            print(pd.read_sql_query("SELECT * FROM Orders;", self.con))
+            sql_query = pd.read_sql_query("SELECT * FROM Orders;", self.con)
+            df = pd.DataFrame(sql_query, columns=['order_id', 'order_type', 'price', 'quantity', 'active'])
+            print(df.to_string(index=False))
         else:
             print("No orders in order book.")
 
