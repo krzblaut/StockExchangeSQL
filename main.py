@@ -100,19 +100,24 @@ class OrderFlow:
             sql_query = pd.read_sql_query("SELECT * FROM Orders;", self.con)
             df = pd.DataFrame(sql_query, columns=['order_id', 'order_type', 'price', 'quantity', 'active'])
             print(df.to_string(index=False))
+            print()
         else:
             print("No orders in order book.")
 
     def best_prices(self):
         """prints sum of sell/buy orders with the best price"""
-        record = self.cursor.execute("SELECT price, SUM(quantity) FROM Orders WHERE active=1 AND order_type = 'buy' "
-                                     "GROUP BY price ORDER BY price ASC LIMIT 1")
-        buy = record.fetchone()
-        print(f"Best buy {buy[0]} {buy[1]}")
-        record = self.cursor.execute("SELECT price, SUM(quantity) FROM Orders WHERE active=1 AND order_type = 'sell' "
-                                     "GROUP BY price ORDER BY price DESC LIMIT 1")
-        sell = record.fetchone()
-        print(f"Best sell {sell[0]} {sell[1]}")
+        record = self.cursor.execute(
+            "SELECT order_type as 'order type', price as 'best price', SUM(quantity) as ' orders sum' "
+            "FROM Orders WHERE active=1 AND order_type = 'buy' "
+            "GROUP BY price ORDER BY price ASC LIMIT 1")
+        buy_df = pd.DataFrame(record.fetchall(), columns=['order type', 'best price', 'orders sum'])
+        record = self.cursor.execute(
+            "SELECT order_type as 'order type', price as 'best price', SUM(quantity) as 'orders sum' "
+            "FROM Orders WHERE active=1 AND order_type = 'sell' "
+            "GROUP BY price ORDER BY price DESC LIMIT 1")
+        sell_df = pd.DataFrame(record.fetchall(), columns=['order type', 'best price', 'orders sum'])
+        print(" " * 7, "Current best prices")
+        print((pd.concat([buy_df, sell_df])).to_string(index=False))
 
 
 if __name__ == '__main__':
