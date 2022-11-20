@@ -102,6 +102,7 @@ class OrderFlow:
             print("No orders in order book.")
 
     def best_prices(self):
+        """prints sum of sell/buy orders with the best price"""
         record = self.cursor.execute("SELECT price, SUM(quantity) FROM Orders WHERE active=1 AND order_type = 'buy' "
                                      "GROUP BY price ORDER BY price ASC LIMIT 1")
         buy = record.fetchone()
