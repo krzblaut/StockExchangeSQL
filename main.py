@@ -124,7 +124,7 @@ if __name__ == '__main__':
     of = OrderFlow("OrderBook.db")
     while True:
         of.best_prices()
-        operation = str(input("choose operation type [add/remove/show orders/quit]: "))
+        operation = str(input("choose operation type [add/remove/show orders/quit]: ")).lower()
         if operation == 'add':
             of.add_order()
         elif operation == 'remove':
