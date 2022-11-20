@@ -101,29 +101,21 @@ class OrderFlow:
         else:
             print("No orders in order book.")
 
-    def best_price_orders_value(self):
-        """prints value of both types orders with the best price"""
-        # checks if orderbook isn't empty
-        record = self.cursor.execute("SELECT * FROM Orders;")
-        # prints only when orderbook isn't empty -> record.fetchall() != []
-        if record.fetchall():
-            print()
-            print(" "*10, "Best orders on the book")
-            print(pd.read_sql_query("SELECT order_id, price, price*quantity AS value, order_type "
-                                    "FROM Orders WHERE order_type = 'buy' AND active = 1 AND price IN "
-                                    "(SELECT MAX(price) FROM Orders WHERE order_type = 'buy' AND active = 1) "
-                                    "UNION "
-                                    "SELECT order_id, price, price*quantity AS value, order_type "
-                                    "FROM Orders WHERE order_type = 'sell' AND active = 1 AND price IN "
-                                    "(SELECT MIN(price) FROM Orders WHERE order_type = 'sell' AND active = 1) "
-                                    "ORDER BY order_type DESC;", self.con))
-            print()
+    def best_prices(self):
+        record = self.cursor.execute("SELECT price, SUM(quantity) FROM Orders WHERE active=1 AND order_type = 'buy' "
+                                     "GROUP BY price ORDER BY price ASC LIMIT 1")
+        buy = record.fetchone()
+        print(f"Best buy {buy[0]} {buy[1]}")
+        record = self.cursor.execute("SELECT price, SUM(quantity) FROM Orders WHERE active=1 AND order_type = 'sell' "
+                                     "GROUP BY price ORDER BY price DESC LIMIT 1")
+        sell = record.fetchone()
+        print(f"Best sell {sell[0]} {sell[1]}")
 
 
 if __name__ == '__main__':
     of = OrderFlow("OrderBook.db")
     while True:
-        of.best_price_orders_value()
+        of.best_prices()
         operation = str(input("choose operation type [add/remove/show orders/quit]: "))
         if operation == 'add':
             of.add_order()
